@@ -3,16 +3,24 @@ body {
     background: #f0f2f5;
     margin: 0;
     padding: 0;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
   }
   
   .kanban-board {
     display: flex;
     justify-content: space-around;
-    padding: 40px;
     gap: 20px;
     max-width: 1200px;
-    margin: auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
+  
   
   .column {
     background: #ffffff;
