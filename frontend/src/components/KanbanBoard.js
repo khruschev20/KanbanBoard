@@ -1,31 +1,74 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import io from "socket.io-client";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import React, { useState } from 'react';
+import './KanbanBoard.css';
 
-const socket = io("http://localhost:5000");
+const initialTasks = {
+  todo: [],
+  inProgress: [],
+  done: []
+};
 
 const KanbanBoard = () => {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(initialTasks);
+  const [newTask, setNewTask] = useState('');
 
-  useEffect(() => {
-    fetchTasks();
-    socket.on("refreshTasks", fetchTasks);
-  }, []);
-
-  const fetchTasks = async () => {
-    const { data } = await axios.get("http://localhost:5000/tasks");
-    setTasks(data);
+  const handleAddTask = () => {
+    if (newTask.trim() === '') return;
+    setTasks({ ...tasks, todo: [...tasks.todo, newTask] });
+    setNewTask('');
   };
 
+  const moveTask = (task, from, to) => {
+    setTasks(prev => ({
+      ...prev,
+      [from]: prev[from].filter(t => t !== task),
+      [to]: [...prev[to], task]
+    }));
+  };
+
+  const handleRemoveTask = (task, column) => {
+    setTasks(prev => ({
+      ...prev,
+      [column]: prev[column].filter(t => t !== task)
+    }));
+  };
+  
+
   return (
-    <Container>
-      <Row>
-        <Col><h3>To-Do</h3>{tasks.filter(t => t.status === "todo").map(t => <Card key={t.id}>{t.title}</Card>)}</Col>
-        <Col><h3>In Progress</h3>{tasks.filter(t => t.status === "in-progress").map(t => <Card key={t.id}>{t.title}</Card>)}</Col>
-        <Col><h3>Completed</h3>{tasks.filter(t => t.status === "completed").map(t => <Card key={t.id}>{t.title}</Card>)}</Col>
-      </Row>
-    </Container>
+    <div className="kanban-container">
+      <h2>Kanban Board</h2>
+      <div className="add-task">
+        <input
+          value={newTask}
+          onChange={e => setNewTask(e.target.value)}
+          placeholder="Add new task"
+        />
+        <button onClick={handleAddTask}>Add</button>
+      </div>
+      <div className="columns">
+        {['todo', 'inProgress', 'done'].map(column => (
+          <div key={column} className="column">
+            <h3>{column.toUpperCase()}</h3>
+            {tasks[column].map(task => (
+              <div key={task} className="task">
+                {task}
+                <div className="actions">
+                  {column !== 'todo' && (
+                    <button onClick={() => moveTask(task, column, 'todo')}>←</button>
+                  )}
+                  {column !== 'inProgress' && (
+                    <button onClick={() => moveTask(task, column, 'inProgress')}>→</button>
+                  )}
+                  {column !== 'done' && (
+                    <button onClick={() => moveTask(task, column, 'done')}>→</button>
+                  )}
+                   <button onClick={() => handleRemoveTask(task, column)}>🗑</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
