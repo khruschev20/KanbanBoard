@@ -19,7 +19,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ ADD THIS ROUTE to prevent "Cannot GET /" error
 app.get("/", (req, res) => {
   res.send("Welcome to the Kanban Board API!");
 });
